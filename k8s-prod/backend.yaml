@@ -18,24 +18,29 @@ spec:
     spec:
       containers:
         - name: backend
-          image: adijaiswal/backend:694535bf15cb7328bd153687abca4167a3fd083a
+          image: urooj275/microblog-api:latest # Placeholder for the CI/CD pipeline to update
           ports:
-            - containerPort: 5000
+            - containerPort: 8080 # Assuming your Go app listens on port 8080
           env:
             - name: DB_HOST
-              value: mysql
+              value: postgres # The name of your PostgreSQL service
             - name: DB_USER
-              value: root
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_USER
             - name: DB_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: mysql-secret
-                  key: MYSQL_ROOT_PASSWORD
+                  name: postgres-secret
+                  key: POSTGRES_PASSWORD
             - name: DB_NAME
               valueFrom:
                 configMapKeyRef:
-                  name: mysql-config
-                  key: MYSQL_DATABASE
+                  name: postgres-config
+                  key: POSTGRES_DB
+            - name: DB_PORT
+              value: "5432" # The standard PostgreSQL port
 ---
 apiVersion: v1
 kind: Service
@@ -46,6 +51,6 @@ spec:
   selector:
     app: backend
   ports:
-    - port: 5000
-      targetPort: 5000
-  type: ClusterIP
+    - port: 8080 # The port the service exposes
+      targetPort: 8080 # The port on the container
+  type: LoadBalancer # Changed to LoadBalancer for external access without Ingress

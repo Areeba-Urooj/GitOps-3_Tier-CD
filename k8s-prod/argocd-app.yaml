@@ -6,7 +6,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/Areeba-Urooj/GitOps_3_Tier-CD.git
+    repoURL: https://github.com/Areeba-Urooj/GitOps-3_Tier-CD.git
     targetRevision: main
     path: k8s-prod    # This is the KEY change - pointing to your app folder!
   destination:
@@ -16,3 +16,4 @@ spec:
     automated:
       prune: true
       selfHeal: true
+

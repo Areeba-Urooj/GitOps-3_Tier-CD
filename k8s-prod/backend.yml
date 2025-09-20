@@ -36,9 +36,9 @@ spec:
                   key: POSTGRES_PASSWORD
             - name: DB_NAME
               valueFrom:
-                configMapKeyRef:
-                  name: postgres-config
-                  key: POSTGRES_DB
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_DB  # Fixed: Changed from configMapKeyRef to secretKeyRef
             - name: DB_PORT
               value: "5432" # The standard PostgreSQL port
 ---

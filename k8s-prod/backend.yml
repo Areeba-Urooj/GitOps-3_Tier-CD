@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: backend
-          image: urooj275/microblog-api:f26166c5f37d105fc75dcc977173ef59ac98d9b5 # Placeholder for the CI/CD pipeline to update
+          image: urooj275/microblog-api:9b0cacf1b69476abb75387e5c92c91d94f46b10a # Placeholder for the CI/CD pipeline to update
           ports:
             - containerPort: 8080 # Assuming your Go app listens on port 8080
           env:

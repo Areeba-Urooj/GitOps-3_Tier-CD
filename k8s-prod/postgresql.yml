@@ -1,36 +1,7 @@
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: postgres-secret
-  namespace: prod
-  labels:
-    app: postgres
-type: Opaque
-stringData:
-  POSTGRES_USER: urooj
-  POSTGRES_PASSWORD: mysecurepassword # Change this to a more secure password
-
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: postgres-config
-  namespace: prod
-  labels:
-    app: postgres
-data:
-  POSTGRES_DB: crud_app
-  # init.sql is not used by the standard PostgreSQL image.
-  # Instead, you can have your Go application handle migrations on startup.
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: postgres
-  namespace: prod
-  labels:
-    app: postgres
 spec:
   replicas: 1
   selector:
@@ -42,60 +13,34 @@ spec:
         app: postgres
     spec:
       containers:
-        - name: postgres
-          image: postgres:15-alpine # Using a lightweight image
-          ports:
-            - containerPort: 5432
-          env:
-            - name: POSTGRES_USER
-              valueFrom:
-                secretKeyRef:
-                  name: postgres-secret
-                  key: POSTGRES_USER
-            - name: POSTGRES_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: postgres-secret
-                  key: POSTGRES_PASSWORD
-            - name: POSTGRES_DB
-              valueFrom:
-                configMapKeyRef:
-                  name: postgres-config
-                  key: POSTGRES_DB
-          volumeMounts:
-            - name: postgres-persistent-storage
-              mountPath: /var/lib/postgresql/data
-      volumes:
-      # This volumeMounts block for initdb is removed since we're using postgres
-      # instead of mysql, and the official postgres image doesn't support it in the same way.
-      # You should handle schema creation with a tool like `migrate` in Go.
-      - name: postgres-persistent-storage
-        persistentVolumeClaim:
-          claimName: postgres-pvc
+      - name: postgres
+        image: postgres:13
+        env:
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: POSTGRES_USER
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: POSTGRES_PASSWORD
+        - name: POSTGRES_DB
+          valueFrom:
+            secretKeyRef:
+              name: postgres-secret
+              key: POSTGRES_DB
+        ports:
+        - containerPort: 5432
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: postgres
-  namespace: prod
-  labels:
-    app: postgres
 spec:
-  ports:
-    - port: 5432
-      targetPort: 5432
   selector:
     app: postgres
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: postgres-pvc
-  namespace: prod
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 5Gi
-  storageClassName: ebs-sc # Use the correct StorageClass for your cloud provider
+  ports:
+  - port: 5432
+    targetPort: 5432

@@ -8,13 +8,15 @@ spec:
   source:
     repoURL: https://github.com/Areeba-Urooj/GitOps-3_Tier-CD.git
     targetRevision: main
-    path: k8s-prod    # This is the KEY change - pointing to your app folder!
+    path: k8s-prod
   destination:
     server: https://kubernetes.default.svc
-    namespace: default
+    namespace: prod # Corrected to deploy to the 'prod' namespace
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
 
 
